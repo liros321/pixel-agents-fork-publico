@@ -689,6 +689,7 @@ function App() {
       <VersionIndicator
         currentVersion={extensionVersion}
         lastSeenVersion={lastSeenVersion}
+        hideUpdateNotice={officeReadOnly}
         onDismiss={handleWhatsNewDismiss}
         onOpenChangelog={handleOpenChangelog}
       />
