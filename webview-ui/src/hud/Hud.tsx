@@ -106,7 +106,7 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
       setToasts((t) => [...t, { id: tid, texto: `${nome} está esperando você` }]);
       setTimeout(() => setToasts((t) => t.filter((x) => x.id !== tid)), 7000);
       if (alertas && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        try { new Notification('Escritório dos agentes', { body: `${nome} está esperando você` }); } catch { /* ignore */ }
+        try { new Notification('Escritório Adaptus', { body: `${nome} está esperando você` }); } catch { /* ignore */ }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,7 +120,7 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
   }, [assinatura]);
 
   useEffect(() => {
-    document.title = cont.esperando ? `(${cont.esperando}) Escritório dos agentes` : 'Escritório dos agentes';
+    document.title = cont.esperando ? `(${cont.esperando}) Escritório Adaptus` : 'Escritório Adaptus';
   }, [cont.esperando]);
 
   const ordem: Record<Estado, number> = { esperando: 0, trabalhando: 1, ocioso: 2 };
@@ -152,9 +152,9 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
     <>
       <header className="hud-top">
         <div className="hud-brand">
-          <span className="hud-logo">◆</span>
+          <span className="hud-logo"><svg viewBox="0 0 120 120" width="30" height="30" aria-hidden="true"><rect width="120" height="120" rx="26" fill="#0F1628"/><path d="M60 22 98 102H80L60 60 40 102H22Z" fill="#EEF2F8"/><circle cx="60" cy="84" r="10" fill="#070A12"/><circle cx="60" cy="84" r="6" fill="#22D3EE"/></svg></span>
           <div>
-            <strong>Escritório dos agentes</strong>
+            <strong>Escritório Adaptus</strong>
             <small>{lista.length} {lista.length === 1 ? 'sessão' : 'sessões'} conectadas</small>
           </div>
         </div>
