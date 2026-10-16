@@ -13,8 +13,6 @@ import {
   CONTEXT_GAUGE_HEIGHT_PX,
   CONTEXT_GAUGE_WIDTH_PX,
   CONTEXT_WARN_THRESHOLD,
-  TEAM_LEAD_COLOR,
-  TEAM_ROLE_COLOR,
   TOOL_OVERLAY_VERTICAL_OFFSET,
 } from '../../constants.js';
 import type { SubagentCharacter } from '../../hooks/useExtensionMessages.js';
@@ -27,7 +25,7 @@ import { CharacterState } from '../types.js';
 // shows ONLY the checkmark (the label falls through to its normal idle text);
 // going idle waiting on the user (Notification(idle_prompt)) additionally
 // surfaces this label. Driven by Character.waitingAwaitingInput.
-const WAITING_INPUT_ACTIVITY_TEXT = 'Waiting for input';
+const WAITING_INPUT_ACTIVITY_TEXT = 'Esperando sua resposta';
 
 interface ToolOverlayProps {
   officeState: OfficeState;
@@ -50,7 +48,7 @@ function getActivityText(
   bubbleType: 'permission' | 'waiting' | null,
   waitingAwaitingInput: boolean,
 ): string {
-  if (bubbleType === 'permission') return 'Needs approval';
+  if (bubbleType === 'permission') return 'Precisa de você';
   // Only the idle case ("Waiting for input") gets a dedicated label. A finished
   // turn (Stop, waitingAwaitingInput=false) falls through so the checkmark alone
   // signals "done", same as the original behavior.
@@ -61,7 +59,7 @@ function getActivityText(
     // Find the latest non-done tool
     const activeTool = [...tools].reverse().find((t) => !t.done);
     if (activeTool) {
-      if (activeTool.permissionWait) return 'Needs approval';
+      if (activeTool.permissionWait) return 'Precisa de você';
       return activeTool.status;
     }
     // All tools done but agent still active (mid-turn) — keep showing last tool status
@@ -71,7 +69,7 @@ function getActivityText(
     }
   }
 
-  return 'Idle';
+  return 'Ocioso';
 }
 
 function getFuelColor(ratio: number): string {
@@ -138,25 +136,6 @@ export function ToolOverlay({
         const screenX = project.toScreenX(ch.x);
         const screenY = project.toScreenY(ch.y + sittingOffset - TOOL_OVERLAY_VERTICAL_OFFSET);
 
-        // A "Done" agent (finished turn: waiting bubble without awaitingInput)
-        // shows ONLY its floating green checkmark bubble, never the label panel
-        // (the panel would cover the bubble). Render an empty positioned marker
-        // so overlay counts stay stable and hover/select can still bring the
-        // panel back. When always-show is off, the early return above already
-        // keeps the panel hidden for idle agents.
-        const isDone = ch.bubbleType === 'waiting' && !ch.waitingAwaitingInput;
-        if (isDone && !isSelected && !isHovered) {
-          return (
-            <div
-              key={id}
-              className="absolute"
-              style={{ left: screenX, top: screenY, pointerEvents: 'none' }}
-              data-testid="agent-overlay"
-              data-agent-id={id}
-            />
-          );
-        }
-
         // Get activity text
         const hasWaitingBubble = ch.bubbleType === 'waiting';
         const subHasPermission = isSub && ch.bubbleType === 'permission';
@@ -167,7 +146,7 @@ export function ToolOverlay({
           activityText = WAITING_INPUT_ACTIVITY_TEXT;
         } else if (isSub) {
           if (subHasPermission) {
-            activityText = 'Needs approval';
+            activityText = 'Precisa de você';
           } else {
             // Hover shows the subtask title; SELECTING the sub reveals its live
             // tool activity (watched sub-agents stream it via subagentToolStart).
@@ -175,7 +154,7 @@ export function ToolOverlay({
             const rows = sub ? subagentTools[sub.parentAgentId]?.[sub.parentToolId] : undefined;
             const activeRow =
               isSelected && rows ? [...rows].reverse().find((t) => !t.done) : undefined;
-            activityText = activeRow?.status ?? (sub?.label || 'Subtask');
+            activityText = activeRow?.status ?? (sub?.label || 'Subtarefa');
           }
         } else {
           activityText = getActivityText(
@@ -190,20 +169,12 @@ export function ToolOverlay({
         // Determine dot color
         const tools = agentTools[id];
         const hasPermission = subHasPermission || tools?.some((t) => t.permissionWait && !t.done);
-        const hasActiveTools = tools?.some((t) => !t.done);
         const isActive = ch.isActive;
         const hasWaiting = ch.bubbleType === 'waiting';
 
-        let dotColor: string | null = null;
-        if (hasPermission || hasWaiting) {
-          dotColor = 'var(--color-status-permission)';
-        } else if (isActive && hasActiveTools) {
-          dotColor = 'var(--color-status-active)';
-        }
 
         // Team info
-        const teamRoleLabel = ch.isTeamLead ? 'LEAD' : ch.agentName || null;
-        const hasExtraLines = !!(ch.folderName || teamRoleLabel);
+        const teamRoleLabel = ch.isTeamLead ? 'LÍDER' : ch.agentName || null;
 
         // Context gauge. Every agent gets one — lead, teammate, adopted,
         // headless — as soon as it has taken a turn. Sub-agents never do: they
@@ -211,55 +182,42 @@ export function ToolOverlay({
         const contextRatio = ch.contextTokens / ch.maxContextTokens;
         const showContextGauge = !isSub && ch.contextTokens > 0;
 
+        // Etiqueta compacta: só o nome da sessão. Status completo aparece só no
+        // agente selecionado (e no painel lateral).
+        const needsYou = !!hasPermission || (hasWaiting && !!ch.waitingAwaitingInput);
+        const working = isActive && !needsYou;
+        const tagColor = needsYou
+          ? 'var(--color-status-permission)'
+          : working
+            ? 'var(--color-status-active)'
+            : 'rgba(148,163,184,.8)';
+        const name = ch.folderName || activityText;
+
         return (
           <div
             key={id}
             className="absolute flex flex-col items-center -translate-x-1/2"
             style={{
               left: screenX,
-              top: screenY - (hasExtraLines ? 34 : 28),
+              top: screenY - (isSelected ? 40 : 24),
               pointerEvents: isSelected ? 'auto' : 'none',
-              opacity: alwaysShowOverlay && !isSelected && !isHovered ? (isSub ? 0.5 : 0.75) : 1,
-              zIndex: isSelected ? 42 : 41,
+              opacity: alwaysShowOverlay && !isSelected && !isHovered && !needsYou ? (isSub ? 0.55 : 0.9) : 1,
+              zIndex: needsYou ? 43 : isSelected ? 42 : 41,
             }}
             data-testid="agent-overlay"
             data-agent-id={id}
           >
-            <div className="flex items-center border-border px-8 pt-2 pb-4 gap-5 pixel-panel whitespace-nowrap max-w-2xs">
-              {dotColor && (
-                <span
-                  className={`w-6 h-6 rounded-full shrink-0 ${isActive && !hasPermission && !hasWaiting ? 'pixel-pulse' : ''}`}
-                  style={{ background: dotColor }}
-                />
-              )}
-              <div className="flex flex-col gap-0 overflow-hidden">
-                {teamRoleLabel && (
-                  <span
-                    className="overflow-hidden text-ellipsis block leading-none"
-                    style={{
-                      fontSize: '18px',
-                      color: ch.isTeamLead ? TEAM_LEAD_COLOR : TEAM_ROLE_COLOR,
-                      fontWeight: ch.isTeamLead ? 'bold' : undefined,
-                    }}
-                  >
-                    {teamRoleLabel}
-                  </span>
-                )}
-                <span
-                  className="overflow-hidden text-ellipsis block leading-none"
-                  style={{
-                    fontSize: isSub ? '20px' : '22px',
-                    fontStyle: isSub ? 'italic' : undefined,
-                  }}
-                >
-                  {activityText}
+            <div className={`hud-tag ${needsYou ? 'hud-tag--alert' : ''} ${isSelected ? 'hud-tag--selected' : ''}`}>
+              <span className={`hud-dot ${working ? 'hud-dot--pulse' : ''} ${needsYou ? 'hud-dot--blink' : ''}`} style={{ background: tagColor }} />
+              <div className="flex flex-col overflow-hidden">
+                <span className="hud-tag-name" style={{ fontStyle: isSub ? 'italic' : undefined }}>
+                  {teamRoleLabel ? `${teamRoleLabel} · ` : ''}{isSub ? activityText : name}
                 </span>
-                {ch.folderName && (
-                  <span className="text-2xs leading-none overflow-hidden text-ellipsis block">
-                    {ch.folderName}
-                  </span>
+                {isSelected && !isSub && ch.folderName && (
+                  <span className="hud-tag-status">{needsYou ? 'Esperando você' : activityText}</span>
                 )}
               </div>
+              {needsYou && <span className="hud-tag-badge">!</span>}
               {isSelected && !isSub && (
                 <Button
                   variant="ghost"
@@ -268,7 +226,7 @@ export function ToolOverlay({
                     e.stopPropagation();
                     onCloseAgent(id);
                   }}
-                  title="Close agent"
+                  title="Fechar agente"
                   className="ml-2 shrink-0 leading-none"
                 >
                   ×
@@ -283,7 +241,7 @@ export function ToolOverlay({
                   background: CONTEXT_GAUGE_BG,
                   marginTop: 2,
                 }}
-                title={`${Math.round(contextRatio * 100)}% context used (${(ch.contextTokens / 1000).toFixed(0)}k of ${(ch.maxContextTokens / 1000).toFixed(0)}k tokens)`}
+                title={`${Math.round(contextRatio * 100)}% do contexto usado (${(ch.contextTokens / 1000).toFixed(0)}k de ${(ch.maxContextTokens / 1000).toFixed(0)}k tokens)`}
                 data-testid="context-gauge"
                 data-context-pct={Math.round(contextRatio * 100)}
               >

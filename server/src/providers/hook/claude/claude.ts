@@ -29,46 +29,46 @@ export function formatToolStatus(toolName: string, input?: unknown): string {
   const base = (p: unknown) => (typeof p === 'string' ? path.basename(p) : '');
   switch (toolName) {
     case 'Read':
-      return `Reading ${base(inp.file_path)}`;
+      return `Lendo ${base(inp.file_path)}`;
     case 'Edit':
-      return `Editing ${base(inp.file_path)}`;
+      return `Editando ${base(inp.file_path)}`;
     case 'Write':
-      return `Writing ${base(inp.file_path)}`;
+      return `Escrevendo ${base(inp.file_path)}`;
     case 'Bash': {
       const cmd = (inp.command as string) || '';
-      return `Running: ${cmd.length > BASH_COMMAND_DISPLAY_MAX_LENGTH ? cmd.slice(0, BASH_COMMAND_DISPLAY_MAX_LENGTH) + '\u2026' : cmd}`;
+      return `Executando: ${cmd.length > BASH_COMMAND_DISPLAY_MAX_LENGTH ? cmd.slice(0, BASH_COMMAND_DISPLAY_MAX_LENGTH) + '\u2026' : cmd}`;
     }
     case 'Glob':
-      return 'Searching files';
+      return 'Buscando arquivos';
     case 'Grep':
-      return 'Searching code';
+      return 'Buscando no código';
     case 'WebFetch':
-      return 'Fetching web content';
+      return 'Lendo página web';
     case 'WebSearch':
-      return 'Searching the web';
+      return 'Pesquisando na web';
     case 'Task':
     case 'Agent': {
       const desc = typeof inp.description === 'string' ? inp.description : '';
       return desc
-        ? `Subtask: ${desc.length > TASK_DESCRIPTION_DISPLAY_MAX_LENGTH ? desc.slice(0, TASK_DESCRIPTION_DISPLAY_MAX_LENGTH) + '\u2026' : desc}`
-        : 'Running subtask';
+        ? `Subtarefa: ${desc.length > TASK_DESCRIPTION_DISPLAY_MAX_LENGTH ? desc.slice(0, TASK_DESCRIPTION_DISPLAY_MAX_LENGTH) + '\u2026' : desc}`
+        : 'Executando subtarefa';
     }
     case 'AskUserQuestion':
-      return 'Waiting for your answer';
+      return 'Esperando sua resposta';
     case 'EnterPlanMode':
-      return 'Planning';
+      return 'Planejando';
     case 'NotebookEdit':
-      return 'Editing notebook';
+      return 'Editando notebook';
     case 'TeamCreate': {
       const teamName = typeof inp.team_name === 'string' ? inp.team_name : '';
-      return teamName ? `Creating team: ${teamName}` : 'Creating team';
+      return teamName ? `Criando equipe: ${teamName}` : 'Criando equipe';
     }
     case 'SendMessage': {
       const recipient = typeof inp.recipient === 'string' ? inp.recipient : '';
-      return recipient ? `-> ${recipient}` : 'Sending message';
+      return recipient ? `-> ${recipient}` : 'Enviando mensagem';
     }
     default:
-      return `Using ${toolName}`;
+      return `Usando ${toolName}`;
   }
 }
 

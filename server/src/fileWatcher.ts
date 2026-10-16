@@ -1572,6 +1572,8 @@ export function startStaleExternalAgentCheck(
 
     for (const [id, agent] of agents) {
       if (!agent.isExternal) continue;
+      // Sessões só-de-hooks (ex.: Cowork via ponte) não têm transcript local: nunca são "stale".
+      if (!agent.jsonlFile) continue;
 
       // Only despawn if the JSONL file has been deleted from disk.
       // Inactive external agents stay alive so they can resume when

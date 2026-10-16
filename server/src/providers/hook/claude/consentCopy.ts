@@ -21,9 +21,9 @@ const SETTINGS_FILE = '~/.claude/settings.json';
 
 /** WHY we ask + WHAT we write. */
 export const CONSENT_FACT_WHAT =
-  `To bring your agents to life in real time, Pixel Agents adds hooks for ` +
-  `${CLAUDE_HOOK_EVENTS.length} Claude Code events to ${SETTINGS_FILE}. ` +
-  `Note that your existing settings are kept, and a one-time backup is saved as settings.json${SETTINGS_BACKUP_SUFFIX}.`;
+  `Para dar vida aos seus agentes em tempo real, o Pixel Agents adiciona hooks para ` +
+  `${CLAUDE_HOOK_EVENTS.length} eventos do Claude Code em ${SETTINGS_FILE}. ` +
+  `Suas configurações atuais são mantidas, e um backup único é salvo como settings.json${SETTINGS_BACKUP_SUFFIX}.`;
 
 /** WHAT data moves, and where it stops.
  *
@@ -34,13 +34,13 @@ export const CONSENT_FACT_WHAT =
  *  thing that changes it, rather than making a promise the software can be
  *  asked to break. */
 export const CONSENT_FACT_DATA =
-  'Claude Code will send those events - including tool names and tool inputs - to a Pixel Agents ' +
-  'server on this machine. Everything stays local - the server listens only on 127.0.0.1 - unless ' +
-  'you explicitly start it with --host to expose it on your network.';
+  'O Claude Code vai enviar esses eventos - incluindo nomes e entradas das ferramentas - para um servidor ' +
+  'do Pixel Agents nesta máquina. Tudo fica local - o servidor escuta só em 127.0.0.1 - a menos que ' +
+  'você o inicie explicitamente com --host para expô-lo na sua rede.';
 
 /** HOW to undo it. */
 export const CONSENT_FACT_REVERSIBLE =
-  'You can remove the hooks at any time from Settings → Instant Detection (Hooks).';
+  'Você pode remover os hooks a qualquer momento em Configurações → Detecção instantânea (hooks).';
 
 /** Headline for the first-run gate — the only population that is asked. A user
  *  whose hooks a pre-consent version already installed is migrated silently
@@ -48,7 +48,7 @@ export const CONSENT_FACT_REVERSIBLE =
  *  Title of the Intro's consent step ("Welcome to Pixel Agents!" is the
  *  Intro's own opening-step title, owned by the webview). Carries NO
  *  disclosure facts by design: the facts all live in CONSENT_DISCLOSURE. */
-export const CONSENT_INSTALL_HEADLINE = 'One more thing: hooks!';
+export const CONSENT_INSTALL_HEADLINE = 'Só mais uma coisa: hooks!';
 
 /** The three disclosure facts, in order, as one block.
  *

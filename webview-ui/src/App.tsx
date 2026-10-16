@@ -17,6 +17,7 @@ import { useEditorActions } from './hooks/useEditorActions.js';
 import { useEditorKeyboard } from './hooks/useEditorKeyboard.js';
 import { useExtensionMessages } from './hooks/useExtensionMessages.js';
 import { useIntroTour } from './hooks/useIntroTour.js';
+import { Hud } from './hud/Hud.js';
 import { OfficeCanvas } from './office/components/OfficeCanvas.js';
 import { ToolOverlay } from './office/components/ToolOverlay.js';
 import { EditorState } from './office/editor/editorState.js';
@@ -270,7 +271,7 @@ function App() {
       // bypassing the layoutLoaded message whose dirty guard would skip it.
       if (
         isEditDirty() &&
-        !window.confirm('Replace the current layout? Unsaved edits will be lost.')
+        !window.confirm('Substituir o layout atual? Alterações não salvas serão perdidas.')
       ) {
         return;
       }
@@ -285,7 +286,7 @@ function App() {
             !Array.isArray(imported.tiles) ||
             !Array.isArray(imported.furniture)
           ) {
-            window.alert('Invalid layout file.');
+            window.alert('Arquivo de layout inválido.');
             return;
           }
           const migrated = migrateLayoutColors(imported as unknown as OfficeLayout);
@@ -297,7 +298,7 @@ function App() {
           });
           editor.markClean();
         } catch {
-          window.alert('Failed to read or parse layout file.');
+          window.alert('Falha ao ler ou interpretar o arquivo de layout.');
         }
       };
       reader.readAsText(file);
@@ -328,7 +329,7 @@ function App() {
     })();
 
   if (!layoutReady) {
-    return <div className="w-full h-full flex items-center justify-center ">Loading...</div>;
+    return <div className="w-full h-full flex items-center justify-center ">Carregando...</div>;
   }
 
   return (
@@ -437,6 +438,8 @@ function App() {
             onCloseAgent={handleCloseAgent}
             alwaysShowOverlay={alwaysShowOverlay}
           />
+
+          <Hud officeState={officeState} agents={agents} agentTools={agentTools} />
         </>
       ) : (
         <DebugView
@@ -454,9 +457,9 @@ function App() {
           message), NOT the hooksEnabled preference: hooksEnabled defaults true
           while first-run consent is still pending, and announcing "Instant
           Detection Active" before anything is installed would be a lie. */}
-      {hooksEnabled && claudeHooksInstalled && !hooksInfoShown && !hooksTooltipDismissed && (
+      {false && hooksEnabled && claudeHooksInstalled && !hooksInfoShown && !hooksTooltipDismissed && (
         <Tooltip
-          title="Instant Detection Active"
+          title="Detecção instantânea ativa"
           position="top-right"
           onDismiss={() => {
             setHooksTooltipDismissed(true);
@@ -464,7 +467,7 @@ function App() {
           }}
         >
           <span className="text-sm text-text leading-none">
-            Your agents now respond in real-time.{' '}
+            Seus agentes agora respondem em tempo real.{' '}
             <span
               className="text-accent cursor-pointer underline"
               onClick={() => {
@@ -473,7 +476,7 @@ function App() {
                 transport.send({ type: 'setHooksInfoShown' });
               }}
             >
-              View more
+              Ver mais
             </span>
           </span>
         </Tooltip>
@@ -483,30 +486,30 @@ function App() {
       <Modal
         isOpen={isHooksInfoOpen}
         onClose={() => setIsHooksInfoOpen(false)}
-        title="Instant Detection is ON"
+        title="Detecção instantânea LIGADA"
         zIndex={52}
       >
         <div className="text-base text-text px-10" style={{ lineHeight: 1.4 }}>
-          <p className="mb-8">Your Pixel Agents office now reacts in real-time:</p>
+          <p className="mb-8">Seu escritório do Pixel Agents agora reage em tempo real:</p>
           <ul className="mb-8 pl-18 list-disc m-0">
-            <li className="text-sm mb-2">Permission prompts appear instantly</li>
-            <li className="text-sm mb-2">Turn completions detected the moment they happen</li>
-            <li className="text-sm mb-2">Sound notifications play immediately</li>
+            <li className="text-sm mb-2">Pedidos de permissão aparecem na hora</li>
+            <li className="text-sm mb-2">Fim de turno detectado no instante em que acontece</li>
+            <li className="text-sm mb-2">Notificações sonoras tocam imediatamente</li>
           </ul>
           <p className="mb-12 text-text-muted">
-            This works through Claude Code Hooks, small event listeners that notify Pixel Agents
-            whenever something happens in your Claude sessions.
+            Isso funciona via hooks do Claude Code, pequenos ouvintes de eventos que avisam o Pixel
+            Agents sempre que algo acontece nas suas sessões do Claude.
           </p>
           <div className="text-center">
             <button
               onClick={() => setIsHooksInfoOpen(false)}
               className="py-4 px-20 text-lg bg-accent text-white border-2 border-accent rounded-none cursor-pointer shadow-pixel"
             >
-              Got it
+              Entendi
             </button>
           </div>
           <p className="mt-8 text-xs text-text-muted text-center">
-            To disable, go to Settings {'>'} Instant Detection
+            Para desativar, vá em Configurações {'>'} Detecção instantânea
           </p>
         </div>
       </Modal>

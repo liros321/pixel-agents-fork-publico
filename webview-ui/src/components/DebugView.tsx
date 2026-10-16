@@ -46,18 +46,18 @@ function ToolLine({ tool }: { tool: ToolActivity }) {
       className={`text-base flex items-center gap-5 ${tool.done ? 'opacity-50' : 'opacity-80'}`}
     >
       <ToolDot tool={tool} />
-      {tool.permissionWait && !tool.done ? 'Needs approval' : tool.status}
+      {tool.permissionWait && !tool.done ? 'Precisa de você' : tool.status}
     </span>
   );
 }
 
 function formatTimeAgo(ms: number): string {
-  if (ms === 0) return 'never';
+  if (ms === 0) return 'nunca';
   const seconds = Math.round((Date.now() - ms) / 1000);
-  if (seconds < 2) return 'just now';
-  if (seconds < 60) return `${seconds}s ago`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 2) return 'agora mesmo';
+  if (seconds < 60) return `há ${seconds}s`;
+  if (seconds < 3600) return `há ${Math.floor(seconds / 60)}min`;
+  return `há ${Math.floor(seconds / 3600)}h`;
 }
 
 export function DebugView({
@@ -113,7 +113,7 @@ export function DebugView({
           <span
             className={`rounded-none py-6 px-10 text-xl ${isSelected ? 'text-white font-bold' : ''}`}
           >
-            Agent #{id}
+            Agente #{id}
           </span>
           <Button
             variant="ghost"
@@ -123,7 +123,7 @@ export function DebugView({
               transport.send({ type: 'closeAgent', id });
             }}
             className={`opacity-70 ${isSelected ? 'text-white' : ''}`}
-            title="Close agent"
+            title="Fechar agente"
           >
             ✕
           </Button>
@@ -147,7 +147,7 @@ export function DebugView({
               officeState.characters.get(id)?.waitingAwaitingInput && (
                 <span className="text-base opacity-85 flex items-center gap-5">
                   <span className="w-6 h-6 rounded-full inline-block shrink-0 bg-status-permission" />
-                  Waiting for input
+                  Esperando sua resposta
                 </span>
               )}
           </div>
@@ -157,22 +157,22 @@ export function DebugView({
           <div className="mt-6 py-4 px-6 text-xs opacity-70 flex flex-col gap-2 border-t border-white/8">
             <span>
               <span className={diag.jsonlExists ? 'text-status-success' : 'text-status-error'}>
-                {diag.jsonlExists ? 'JSONL connected' : 'JSONL not found'}
+                {diag.jsonlExists ? 'JSONL conectado' : 'JSONL não encontrado'}
               </span>
               {' | '}
-              Lines: {diag.linesProcessed}
+              Linhas: {diag.linesProcessed}
               {' | '}
-              Last data: {formatTimeAgo(diag.lastDataAt)}
+              Último dado: {formatTimeAgo(diag.lastDataAt)}
             </span>
             <span className="opacity-60 text-2xs break-all">{diag.jsonlFile}</span>
             {!diag.projectDirExists && (
               <span className="text-2xs text-status-error">
-                Project dir does not exist: {diag.projectDir}
+                Pasta do projeto não existe: {diag.projectDir}
               </span>
             )}
             {diag.jsonlExists && diag.fileSize > 0 && diag.linesProcessed === 0 && (
               <span className="text-2xs text-status-permission">
-                File has data ({diag.fileSize} bytes) but 0 lines parsed. Possible format issue.
+                Arquivo tem dados ({diag.fileSize} bytes), mas 0 linhas lidas. Possível problema de formato.
               </span>
             )}
           </div>
@@ -184,7 +184,7 @@ export function DebugView({
   return (
     <div className="absolute inset-0 overflow-auto bg-bg z-15">
       <div className="px-12 py-6 text-2xl">
-        <h2 className="text-3xl font-bold mb-8">Debug View</h2>
+        <h2 className="text-3xl font-bold mb-8">Modo debug</h2>
         <div className="flex flex-col gap-6">{agents.map(renderAgentCard)}</div>
       </div>
     </div>

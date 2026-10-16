@@ -14,19 +14,19 @@ export function MigrationNotice({ onDismiss }: MigrationNoticeProps) {
         className="pixel-panel py-24 px-32 max-w-xl text-center leading-[1.3]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="text-5xl mb-12 text-accent">We owe you an apology!</div>
+        <div className="text-5xl mb-12 text-accent">Te devemos um pedido de desculpas!</div>
         <p className="text-xl m-0 mb-12">
-          We've just migrated to fully open-source assets, all built from scratch with love.
-          Unfortunately, this means your previous layout had to be reset.
+          Acabamos de migrar para assets 100% open source, todos feitos do zero com carinho.
+          Infelizmente, isso significa que seu layout anterior precisou ser resetado.
         </p>
-        <p className="text-xl m-0 mb-12">We're really sorry about that.</p>
+        <p className="text-xl m-0 mb-12">Sentimos muito por isso.</p>
         <p className="text-xl m-0 mb-12">
-          The good news? This was a one-time thing, and it paves the way for some genuinely exciting
-          updates ahead.
+          A boa notícia? Isso foi coisa de uma vez só, e abre caminho para novidades bem empolgantes
+          por vir.
         </p>
-        <p className="text-xl m-0 mb-20">Stay tuned, and thanks for using Pixel Agents!</p>
+        <p className="text-xl m-0 mb-20">Fique de olho, e obrigado por usar o Pixel Agents!</p>
         <Button variant="accent" size="xl" onClick={onDismiss}>
-          Got it
+          Entendi
         </Button>
       </div>
     </div>

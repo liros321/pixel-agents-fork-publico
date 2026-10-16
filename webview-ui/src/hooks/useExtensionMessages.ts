@@ -400,7 +400,7 @@ export function useExtensionMessages(
           !isTeammateSpawn &&
           (!runInBackground || !parentHasTeam)
         ) {
-          const label = status.startsWith('Subtask:') ? status.slice('Subtask:'.length).trim() : '';
+          const label = status.startsWith('Subtarefa:') ? status.slice('Subtarefa:'.length).trim() : '';
           const subId = os.addSubagent(id, toolId);
           setSubagentCharacters((prev) => {
             if (prev.some((s) => s.id === subId)) return prev;

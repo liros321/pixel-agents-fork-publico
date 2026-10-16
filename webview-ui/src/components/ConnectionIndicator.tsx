@@ -4,9 +4,9 @@ import { transport } from '../transport/index.js';
 import type { TransportState } from '../transport/types.js';
 
 const STATE_LABELS: Partial<Record<TransportState, string>> = {
-  connecting: 'Connecting…',
-  reconnecting: 'Reconnecting…',
-  disconnected: 'Disconnected',
+  connecting: 'Conectando…',
+  reconnecting: 'Reconectando…',
+  disconnected: 'Desconectado',
 };
 
 /**
@@ -26,7 +26,7 @@ export function ConnectionIndicator() {
 
   if (state === 'connected') return null;
 
-  const label = STATE_LABELS[state] ?? 'Disconnected';
+  const label = STATE_LABELS[state] ?? 'Desconectado';
   const dotClass = state === 'connecting' ? 'bg-status-permission' : 'bg-status-error';
 
   return (

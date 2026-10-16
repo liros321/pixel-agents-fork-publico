@@ -527,7 +527,7 @@ export class HookEventHandler {
 
     // Create child sub-agent character immediately (same as old behavior).
     const subToolId = `hook-sub-${agentType}-${Date.now()}`;
-    const status = `Subtask: ${agentType}`;
+    const status = `Subtarefa: ${agentType}`;
 
     // Track sub-agent
     let subTools = agent.activeSubagentToolIds.get(parentToolId);

@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+
+:root {
+  --hud-bg: rgba(10, 14, 26, 0.78);
+  --hud-bg-solid: #0b1020;
+  --hud-line: rgba(148, 163, 184, 0.16);
+  --hud-text: #e6ebf5;
+  --hud-muted: #8b95ab;
+  --hud-work: #a3e635;
+  --hud-wait: #f59e0b;
+  --hud-idle: #64748b;
+  --hud-accent: #22d3ee;
+  --hud-violet: #8b5cf6;
+  --color-status-active: #a3e635;
+  --color-status-permission: #f59e0b;
+}
+
+.hud-top, .hud-panel, .hud-toast, .hud-tag {
+  font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--hud-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Barra superior */
+.hud-top {
+  position: absolute; top: 12px; left: 72px; right: 12px; z-index: 60;
+  display: flex; align-items: center; gap: 16px; padding: 10px 14px;
+  background: var(--hud-bg); backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--hud-line); border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.hud-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.hud-brand strong { display: block; font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+.hud-brand small { display: block; font-size: 12px; color: var(--hud-muted); }
+.hud-logo {
+  width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; font-size: 14px;
+  background: linear-gradient(135deg, var(--hud-accent), var(--hud-violet)); color: #06101f;
+}
+.hud-chips { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.hud-chip {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
+  font: 600 13px 'Manrope', system-ui, sans-serif; color: var(--hud-text); cursor: pointer;
+  background: rgba(148, 163, 184, 0.08); border: 1px solid var(--hud-line); transition: all .15s;
+}
+.hud-chip:hover { background: rgba(148, 163, 184, 0.16); }
+.hud-chip i { width: 8px; height: 8px; border-radius: 50%; }
+.hud-chip b { font: 500 12px 'JetBrains Mono', monospace; color: var(--hud-muted); }
+.hud-chip--trabalhando i { background: var(--hud-work); }
+.hud-chip--esperando i { background: var(--hud-wait); }
+.hud-chip--ocioso i { background: var(--hud-idle); }
+.hud-chip.is-on { border-color: var(--hud-accent); background: rgba(34, 211, 238, 0.12); }
+.hud-chip--pulse { border-color: rgba(245, 158, 11, 0.6); animation: hud-glow 1.6s ease-in-out infinite; }
+.hud-chip--pulse b { color: var(--hud-wait); }
+.hud-actions { display: flex; gap: 6px; }
+.hud-icon {
+  width: 34px; height: 34px; border-radius: 10px; cursor: pointer; font-size: 15px; color: var(--hud-text);
+  background: rgba(148, 163, 184, 0.08); border: 1px solid var(--hud-line);
+}
+.hud-icon:hover, .hud-icon.is-on { background: rgba(34, 211, 238, 0.14); border-color: rgba(34, 211, 238, 0.5); }
+
+/* Painel lateral */
+.hud-panel {
+  position: absolute; top: 76px; right: 12px; bottom: 64px; width: 300px; z-index: 59;
+  display: flex; flex-direction: column; gap: 8px; padding: 12px; overflow-y: auto;
+  background: var(--hud-bg); backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--hud-line); border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.hud-panel-head { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 4px;
+  font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--hud-muted); }
+.hud-link { background: none; border: 0; color: var(--hud-accent); cursor: pointer; font: 600 12px 'Manrope', sans-serif; text-transform: none; letter-spacing: 0; }
+.hud-empty, .hud-hint { font-size: 12px; color: var(--hud-muted); padding: 4px; margin: 0; }
+.hud-hint { margin-top: auto; }
+
+.hud-card {
+  position: relative; display: grid; grid-template-columns: 1fr auto; border-radius: 11px;
+  background: rgba(148, 163, 184, 0.06); border: 1px solid var(--hud-line); transition: border-color .15s, background .15s;
+}
+.hud-card:hover { background: rgba(148, 163, 184, 0.11); }
+.hud-card.is-sel { border-color: var(--hud-accent); box-shadow: 0 0 0 1px rgba(34, 211, 238, .35) inset; }
+.hud-card--esperando { border-color: rgba(245, 158, 11, 0.55); background: rgba(245, 158, 11, 0.08); }
+.hud-card-main {
+  display: flex; align-items: center; gap: 10px; padding: 10px 6px 10px 12px; min-width: 0;
+  background: none; border: 0; color: inherit; cursor: pointer; text-align: left; font-family: inherit;
+}
+.hud-card-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--hud-idle); }
+.hud-card--trabalhando .hud-card-dot { background: var(--hud-work); box-shadow: 0 0 0 4px rgba(163, 230, 53, .15); animation: hud-pulse 1.4s ease-in-out infinite; }
+.hud-card--esperando .hud-card-dot { background: var(--hud-wait); animation: hud-blink 1s steps(2, start) infinite; }
+.hud-card-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.hud-card-txt strong { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-card-txt span { font-size: 12px; color: var(--hud-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-card--esperando .hud-card-txt span { color: var(--hud-wait); font-weight: 600; }
+.hud-card-main em { font: 500 11px 'JetBrains Mono', monospace; font-style: normal; color: var(--hud-muted); flex: none; }
+.hud-card-more { width: 30px; background: none; border: 0; border-left: 1px solid var(--hud-line); color: var(--hud-muted); cursor: pointer; }
+.hud-card-more:hover { color: var(--hud-text); }
+.hud-hist { grid-column: 1 / -1; list-style: none; margin: 0; padding: 4px 12px 10px; border-top: 1px solid var(--hud-line); }
+.hud-hist li { display: flex; gap: 8px; font-size: 12px; padding: 3px 0; color: var(--hud-text); }
+.hud-hist time { font: 500 11px 'JetBrains Mono', monospace; color: var(--hud-muted); flex: none; }
+.hud-hist span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Etiquetas sobre os bonecos */
+.hud-tag {
+  display: flex; align-items: center; gap: 6px; padding: 3px 9px 3px 7px; white-space: nowrap; max-width: 220px;
+  background: rgba(10, 14, 26, 0.86); border: 1px solid var(--hud-line); border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.hud-tag--selected { border-radius: 10px; border-color: var(--hud-accent); padding: 5px 10px 5px 8px; }
+.hud-tag--alert { border-color: var(--hud-wait); background: rgba(40, 26, 4, 0.92); animation: hud-glow 1.6s ease-in-out infinite; }
+.hud-tag-name { font-size: 12px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; }
+.hud-tag-status { font-size: 11px; color: var(--hud-muted); overflow: hidden; text-overflow: ellipsis; line-height: 1.25; }
+.hud-tag-badge {
+  width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--hud-wait); color: #1a1100; font-size: 11px; font-weight: 800;
+}
+.hud-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.hud-dot--pulse { animation: hud-pulse 1.4s ease-in-out infinite; }
+.hud-dot--blink { animation: hud-blink 1s steps(2, start) infinite; }
+
+/* Alertas */
+.hud-toasts { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 70;
+  display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.hud-toast {
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 14px; font-weight: 600;
+  background: rgba(40, 26, 4, 0.95); border: 1px solid var(--hud-wait); border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .45); animation: hud-in .25s ease-out;
+}
+.hud-toast b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--hud-wait); color: #1a1100; }
+
+@keyframes hud-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
+@keyframes hud-blink { to { visibility: hidden } }
+@keyframes hud-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0) } 50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, .25) } }
+@keyframes hud-in { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+
+@media (max-width: 760px) {
+  .hud-top { left: 12px; flex-wrap: wrap; }
+  .hud-panel { width: auto; left: 12px; top: auto; height: 45%; }
+}
+
+/* O app aplica a fonte pixel em todo elemento (* { font-pixel }); dentro do HUD, herda. */
+.hud-top *, .hud-panel *, .hud-toast *, .hud-tag * { font-family: inherit; }
