@@ -19,6 +19,7 @@ import {
   TERMINAL_DEFAULT_ROWS,
   TERMINAL_KILL_GRACE_MS,
   TERMINAL_MIRROR_SCROLLBACK_LINES,
+  TERMINAL_SHUTDOWN_SLACK_MS,
   TERMINAL_TERM_NAME,
 } from '../constants.js';
 import type { IPty, PtyModule } from './ptyModule.js';
@@ -299,11 +300,29 @@ export class PtySessionManager {
     session.dispose();
   }
 
-  /** Kill every terminal. Called on server shutdown. */
-  disposeAll(): void {
+  /**
+   * Kill every terminal. Called on server shutdown, which must await it: the
+   * SIGKILL escalation is a timer, and a process that exits first never runs it
+   * — a child that ignores SIGHUP would outlive the server. Resolves once every
+   * process has exited, or shortly after the escalation as a backstop (this
+   * timer is ref'd, so it also keeps the event loop alive until then).
+   */
+  disposeAll(): Promise<void> {
+    const sessions = [...this.sessions.values()];
     for (const agentId of [...this.sessions.keys()]) {
       this.dispose(agentId);
     }
+    if (sessions.length === 0) return Promise.resolve();
+    const exited = Promise.all(
+      sessions.map((session) => new Promise<void>((resolve) => session.onExit(() => resolve()))),
+    );
+    let backstop: NodeJS.Timeout | undefined;
+    const timedOut = new Promise<void>((resolve) => {
+      backstop = setTimeout(resolve, TERMINAL_KILL_GRACE_MS + TERMINAL_SHUTDOWN_SLACK_MS);
+    });
+    return Promise.race([exited.then(() => undefined), timedOut]).finally(() =>
+      clearTimeout(backstop),
+    );
   }
 }
 

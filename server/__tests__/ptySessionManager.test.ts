@@ -199,6 +199,37 @@ describe('PtySessionManager lifecycle', () => {
     expect(spawned[1].killSignals).toHaveLength(1);
   });
 
+  it('disposeAll waits for every process to exit', async () => {
+    const { manager, spawned } = harness();
+    create(manager, 1);
+    create(manager, 2);
+    let settled = false;
+    const done = manager.disposeAll().then(() => (settled = true));
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    spawned[0].exit(0);
+    spawned[1].exit(0);
+    await done;
+    expect(settled).toBe(true);
+  });
+
+  it('disposeAll keeps shutdown alive through the SIGKILL escalation', async () => {
+    vi.useFakeTimers();
+    try {
+      const { manager, spawned } = harness();
+      create(manager, 1);
+      let settled = false;
+      void manager.disposeAll().then(() => (settled = true));
+      await vi.advanceTimersByTimeAsync(2_500);
+      expect(spawned[0].killSignals).toEqual([undefined, 'SIGKILL']);
+      expect(settled).toBe(false);
+      await vi.advanceTimersByTimeAsync(1_000);
+      expect(settled).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('escalates to SIGKILL when the process ignores the first kill', async () => {
     vi.useFakeTimers();
     try {

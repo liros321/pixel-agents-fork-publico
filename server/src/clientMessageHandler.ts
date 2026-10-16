@@ -142,8 +142,7 @@ export function handleClientMessage(
         // PTY-backed agents; do it here too so external agents (and a PTY that
         // never exits) are still removed promptly.
         ctx.ptyManager?.dispose(id);
-        runtime.dismissalTracker.dismiss(agent.jsonlFile);
-        runtime.removeAgent(id);
+        runtime.closeAgent(id);
       }
       break;
     }

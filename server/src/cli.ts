@@ -418,18 +418,22 @@ async function main(): Promise<void> {
     );
 
     // ── Graceful shutdown ──
-    function shutdown(): void {
+    let shuttingDown = false;
+    async function shutdown(): Promise<void> {
+      if (shuttingDown) return;
+      shuttingDown = true;
       console.log('\nShutting down...');
-      // Kill child terminals before the runtime tears their agents down, so we
-      // never leave an orphaned Claude process attached to a dead server.
-      ptyManager.disposeAll();
+      // Kill child terminals before the runtime tears their agents down, and
+      // wait for them: exiting now would cancel the SIGKILL escalation and
+      // leave a child that ignores SIGHUP orphaned on a dead server.
+      await ptyManager.disposeAll();
       runtime.dispose();
       server.stop();
       process.exit(0);
     }
 
-    process.on('SIGINT', shutdown);
-    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', () => void shutdown());
+    process.on('SIGTERM', () => void shutdown());
   } catch (err) {
     console.error('Failed to start server:', err);
     process.exit(1);

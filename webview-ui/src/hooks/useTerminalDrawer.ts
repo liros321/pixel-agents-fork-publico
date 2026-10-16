@@ -6,6 +6,7 @@ import {
   TERMINAL_DRAWER_DEFAULT_WIDTH_PX,
   TERMINAL_DRAWER_MAX_WIDTH_RATIO,
   TERMINAL_DRAWER_MIN_WIDTH_PX,
+  TERMINAL_SIDEBAR_WIDTH_PX,
 } from '../constants.js';
 import type { OfficeState } from '../office/engine/officeState.js';
 import type { ToolActivity } from '../office/types.js';
@@ -38,6 +39,19 @@ export interface TerminalDrawerController {
 }
 
 /**
+ * The drawer width that fits a viewport: the office keeps at least the card
+ * bar's width (the cards overlay its right edge, and they are the only way to
+ * switch agents), so on a narrow screen the minimum gives way to that.
+ */
+export function clampDrawerWidth(preferredPx: number, viewportPx: number): number {
+  const maxPx = Math.min(
+    viewportPx * TERMINAL_DRAWER_MAX_WIDTH_RATIO,
+    viewportPx - TERMINAL_SIDEBAR_WIDTH_PX,
+  );
+  return Math.max(0, Math.min(maxPx, Math.max(TERMINAL_DRAWER_MIN_WIDTH_PX, preferredPx)));
+}
+
+/**
  * All state and derivations behind the standalone terminal drawer: which tab is
  * active, whether the panel is open, its width and drag-resize gesture, and the
  * per-agent lookups the cards render from. App only composes it.
@@ -52,7 +66,17 @@ export function useTerminalDrawer({
 }: TerminalDrawerInputs): TerminalDrawerController {
   const [activeAgentId, setActiveAgentId] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [widthPx, setWidthPx] = useState(TERMINAL_DRAWER_DEFAULT_WIDTH_PX);
+  // The width the user asked for; what renders is that clamped to the
+  // viewport, re-derived on every window resize so a window that narrows
+  // while the drawer is open never pushes the office (and its cards) out.
+  const [preferredWidthPx, setPreferredWidthPx] = useState(TERMINAL_DRAWER_DEFAULT_WIDTH_PX);
+  const [viewportPx, setViewportPx] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setViewportPx(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  const widthPx = clampDrawerWidth(preferredWidthPx, viewportPx);
 
   // Reveal a newly-opened terminal. Launching is async — the toolbar sends
   // launchAgent and the server answers with terminalSessionOpened once the PTY
@@ -100,11 +124,10 @@ export function useTerminalDrawer({
       e.preventDefault();
       const startX = e.clientX;
       const startWidth = widthPx;
-      const maxWidth = window.innerWidth * TERMINAL_DRAWER_MAX_WIDTH_RATIO;
       const onMove = (ev: MouseEvent) => {
         // Dragging left (smaller clientX) widens the panel.
         const next = startWidth + (startX - ev.clientX);
-        setWidthPx(Math.max(TERMINAL_DRAWER_MIN_WIDTH_PX, Math.min(maxWidth, next)));
+        setPreferredWidthPx(clampDrawerWidth(next, window.innerWidth));
       };
       const onUp = () => {
         window.removeEventListener('mousemove', onMove);

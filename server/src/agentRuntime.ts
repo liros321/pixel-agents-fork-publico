@@ -376,6 +376,21 @@ export class AgentRuntime {
     this.store.persist();
   }
 
+  /**
+   * Close an agent the user (or its process) ended: its Teammates and watched
+   * Sub-agents go with it, and its transcript is dismissed so no scanner
+   * re-adopts it. Children first — once the Lead is gone, nothing can find
+   * them (a later sessionEnd resolves no agent).
+   */
+  closeAgent(id: number): void {
+    const agent = this.store.get(id);
+    if (!agent) return;
+    this.removeTeammates(id);
+    this.subagentWatch.removeByLead(id);
+    this.dismissalTracker.dismiss(agent.jsonlFile);
+    this.removeAgent(id);
+  }
+
   /** Remove all teammates of a lead agent. */
   removeTeammates(leadId: number): void {
     const teammates: number[] = [];

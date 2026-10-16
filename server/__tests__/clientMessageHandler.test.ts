@@ -845,6 +845,18 @@ describe('clientMessageHandler: standalone terminal control plane', () => {
     expect(store.has(5)).toBe(true);
   });
 
+  it("closeAgent takes the Lead's teammates with it", () => {
+    const { manager } = workingPtyManager();
+    store.set(5, { ...makeAgent(5), isTeamLead: true });
+    store.set(6, { ...makeAgent(6), leadAgentId: 5, agentName: 'review-helper' });
+    manager.create({ agentId: 5, command: 'claude', args: [], cwd: tempHome });
+
+    dispatch({ type: 'closeAgent', id: 5 }, ctx({ runtime, ptyManager: manager }));
+
+    expect(store.has(5)).toBe(false);
+    expect(store.has(6)).toBe(false);
+  });
+
   it('closeAgent removes an observed agent that has no PTY', () => {
     store.set(7, makeAgent(7));
 

@@ -225,6 +225,18 @@ describe('launchStandaloneAgent', () => {
     expect(harness.manager.has(id)).toBe(false);
   });
 
+  it("removes the Lead's teammates when its process exits", () => {
+    const harness = workingPtyManager();
+    const id = launch(harness)!;
+    const lead = store.get(id)!;
+    store.set(id + 1, { ...lead, id: id + 1, leadAgentId: id, agentName: 'review-helper' });
+
+    harness.spawned[0].exit(0);
+
+    expect(store.has(id)).toBe(false);
+    expect(store.has(id + 1)).toBe(false);
+  });
+
   // ── JSONL adoption poll ──────────────────────────────────────
 
   it('starts watching the session JSONL once it appears', () => {

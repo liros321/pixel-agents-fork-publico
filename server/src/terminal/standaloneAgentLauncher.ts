@@ -136,9 +136,8 @@ export function launchStandaloneAgent(
     console.log(`[Pixel Agents] Terminal: Agent ${id} - exited (code ${exit.exitCode})`);
     store.broadcast({ type: 'terminalSessionClosed', agentId: id, exitCode: exit.exitCode });
     if (store.has(id)) {
-      runtime.dismissalTracker.dismiss(agent.jsonlFile);
       runtime.unregisterAgent(agent.sessionId);
-      runtime.removeAgent(id);
+      runtime.closeAgent(id);
     }
   });
 

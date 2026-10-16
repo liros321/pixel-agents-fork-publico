@@ -132,10 +132,16 @@ export function TerminalDrawer({
           </Button>
         </div>
 
-        {/* Panes: all mounted, only the active one shown. */}
+        {/* Panes: all mounted, only the active one shown. The wrapper hides
+            too, not just the pane: each one is absolutely stacked over the
+            same box, so a visible empty wrapper later in the list would sit on
+            top of the active terminal and swallow its mouse input. */}
         <div className="relative flex-1 min-h-0 p-4">
           {agentIds.map((agentId) => (
-            <div key={agentId} className="absolute inset-4">
+            <div
+              key={agentId}
+              className={`absolute inset-4 ${agentId === activeId ? '' : 'hidden'}`}
+            >
               <TerminalPane
                 agentId={agentId}
                 isActive={agentId === activeId}

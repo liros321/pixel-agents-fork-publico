@@ -122,6 +122,8 @@ export const TERMINAL_DEFAULT_ROWS = 24;
 export const TERMINAL_TERM_NAME = 'xterm-256color';
 /** Grace period between SIGHUP and SIGKILL when disposing a PTY. */
 export const TERMINAL_KILL_GRACE_MS = 2_000;
+/** How long shutdown waits past the SIGKILL escalation for the exits to land. */
+export const TERMINAL_SHUTDOWN_SLACK_MS = 1_000;
 /** unavailableReason() when the operator opted out with --no-terminal. Shown
  *  verbatim as the disabled + Agent button's tooltip in the browser. */
 export const TERMINAL_DISABLED_BY_FLAG_REASON = 'Terminal disabled with --no-terminal.';

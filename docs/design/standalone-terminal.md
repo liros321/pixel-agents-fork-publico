@@ -326,7 +326,9 @@ reload reattaches to a still-running Claude session.
 - `standalone` `launchAgent` / `closeAgent` handling (close now kills the PTY).
 - `GET /terminal/:agentId` WS, token-authenticated; `launchAgent`/`closeAgent` honoured on privileged `/ws` only.
 - Three additive AsyncAPI `ServerMessage` variants.
-- xterm.js drawer in the SPA: one tab per PTY-backed agent, character-click focuses its tab,
+- xterm.js drawer in the SPA: a right-docked panel the office reflows beside (clamped to the
+  viewport so the card bar stays on screen), one tab per PTY-backed agent, character-click
+  focuses its tab (a Teammate's focuses its Lead's),
   standalone-only, pixel-art chrome + mono terminal content, xterm assets bundled (no CDN).
 - Distribution: esbuild externals, `package.json` `optionalDependencies` + `files`.
 - Server unit tests: session manager lifecycle, WS auth, message framing.
@@ -349,12 +351,6 @@ reload reattaches to a still-running Claude session.
   standalone PTY agents. With hooks on (the default) `SessionEnd`/`SessionStart` handle `/clear`
   correctly, so this only affects hooks-off standalone.
 - **Making `/ws` authenticate in standalone** (pre-existing gap, not introduced here).
-- **Resizing the office canvas when the drawer opens.** The drawer is an absolute
-  overlay along the bottom, so it covers the lower part of the office rather than
-  shrinking the canvas. The BottomToolbar lifts clear of it (via
-  `--terminal-drawer-h`), but the canvas itself doesn't reflow. Making the root a
-  flex column would fix it properly and touches OfficeCanvas sizing — deliberately
-  out of scope here.
 
 ## E2E coverage
 

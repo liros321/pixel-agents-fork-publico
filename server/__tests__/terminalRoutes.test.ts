@@ -140,7 +140,7 @@ describe('terminal WebSocket auth', () => {
   });
 
   afterEach(() => {
-    ptyManager?.disposeAll();
+    void ptyManager?.disposeAll();
     server?.stop();
     try {
       fs.rmSync(tmpBase, { recursive: true, force: true });

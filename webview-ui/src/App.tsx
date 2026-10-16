@@ -257,10 +257,15 @@ function App() {
       const focusId = meta ? meta.parentAgentId : agentId;
       transport.send({ type: 'focusAgent', id: focusId });
       // Standalone: focusAgent is a no-op server-side (there's no editor to
-      // raise a panel in), so focus is resolved here by revealing the tab.
-      revealTerminal(focusId);
+      // raise a panel in), so focus is resolved here by revealing the tab. A
+      // Teammate without a terminal of its own runs in its Lead's, so it
+      // reveals that one (VS Code resolves the same way server-side).
+      const leadId = os.characters.get(focusId)?.leadAgentId;
+      revealTerminal(
+        leadId !== undefined && !terminalAgentIds.includes(focusId) ? leadId : focusId,
+      );
     },
-    [revealTerminal],
+    [revealTerminal, terminalAgentIds],
   );
 
   const officeState = getOfficeState();

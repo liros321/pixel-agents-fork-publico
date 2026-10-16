@@ -78,6 +78,40 @@ test.describe('Standalone / terminal', () => {
     await expect(page.getByTitle('Agent 1')).toHaveCount(0);
     await expectOverlayCount(page, 0);
   });
+
+  test('every tab takes mouse input, and a narrow window keeps the cards and close reachable @area:standalone', async ({
+    page,
+    standalone,
+  }) => {
+    await waitForClaudeHookSetup(standalone.tmpHome);
+
+    for (const n of [1, 2]) {
+      await arrangeNextClaudeInvocation(
+        standalone.tmpHome,
+        claudeScenario(`standalone pty tab ${n}`).holdOpenFor(60_000).build(),
+      );
+      await page.getByRole('button', { name: '+ Agent' }).click();
+      await expect(page.getByTitle(`Agent ${n}`)).toBeVisible({ timeout: 15_000 });
+    }
+
+    // The FIRST tab: every pane is stacked in the same box, so a later
+    // agent's hidden pane must not sit over it. Playwright's click refuses an
+    // intercepted target, so the click itself is the assertion.
+    await page.getByTitle('Agent 1').click();
+    const first = page.locator('.xterm:visible');
+    await expect(first).toHaveCount(1);
+    await expect(first).toContainText('mock claude session', { timeout: 15_000 });
+    await first.click();
+    await page.keyboard.type('first-tab-input');
+    await expect(first).toContainText('first-tab-input', { timeout: 10_000 });
+
+    // A phone-width window: the drawer gives way so the office keeps its card
+    // bar, and the panel's own close button stays on screen.
+    await page.setViewportSize({ width: 390, height: 800 });
+    await expect(page.getByTitle('Close terminal')).toBeInViewport({ ratio: 1 });
+    await expect(page.getByTitle('Agent 1')).toBeInViewport({ ratio: 1 });
+    await expect(page.getByTitle('Agent 2')).toBeInViewport({ ratio: 1 });
+  });
 });
 
 test.describe('Standalone / terminal disabled', () => {
