@@ -1,12 +1,12 @@
 {
-  "name": "pixel-agents",
-  "displayName": "Pixel Agents",
-  "description": "Pixel art office where your Claude Code agents come to life as animated characters",
+  "name": "adaptus-agentes",
+  "displayName": "Adaptus Agentes",
+  "description": "Seus agentes do Claude trabalhando num escritório pixel-art — Adaptus Tecnologia.",
   "version": "1.4.1",
   "publisher": "pablodelucca",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pixel-agents-hq/pixel-agents"
+    "url": "https://github.com/liros321/adaptus-agentes"
   },
   "workspaces": [
     "server",
@@ -29,7 +29,7 @@
   ],
   "main": "./dist/extension.js",
   "bin": {
-    "pixel-agents": "./dist/cli.js"
+    "adaptus-agentes": "./dist/cli.js"
   },
   "files": [
     "CHANGELOG.md",
@@ -172,5 +172,6 @@
     "webapi-parser": {
       "ajv": "^6.15.0"
     }
-  }
+  },
+  "author": "Adaptus Tecnologia"
 }

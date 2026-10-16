@@ -136,6 +136,20 @@
 .hud-friend-btns { display: flex; gap: 5px; flex: none; }
 .hud-err { color: var(--hud-wait); font-size: 12px; margin: 0; padding: 0 4px; }
 
+/* Som */
+.hud-icon--off { border-color: rgba(245, 158, 11, .6); background: rgba(245, 158, 11, .12); }
+.hud-nudge { position: absolute; left: 50%; top: 84px; transform: translateX(-50%); z-index: 61; max-width: min(640px, calc(100% - 32px));
+  padding: 9px 14px; border-radius: 12px; cursor: pointer; text-align: left;
+  background: rgba(40, 26, 4, .95); border: 1px solid var(--hud-wait); color: var(--hud-text); font: 600 13px 'Manrope', sans-serif; }
+.hud-nudge b { color: var(--hud-wait); margin-left: 6px; }
+.hud-nudge--soft { cursor: default; background: rgba(10, 14, 26, .9); border-color: rgba(34, 211, 238, .45); pointer-events: none; }
+.hud-modal-bg { position: absolute; inset: 0; z-index: 80; display: grid; place-items: center; background: rgba(3, 6, 14, .6); backdrop-filter: blur(3px); }
+.hud-modal { width: min(420px, calc(100% - 32px)); padding: 20px; border-radius: 16px; background: var(--hud-bg-solid); border: 1px solid var(--hud-line);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5); font-family: 'Manrope', system-ui, sans-serif; color: var(--hud-text); }
+.hud-modal * { font-family: inherit; }
+.hud-modal strong { font-size: 16px; } .hud-modal p { font-size: 14px; line-height: 1.5; color: #c3cbe0; margin: 10px 0 16px; }
+.hud-modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
 /* Alertas */
 .hud-toasts { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 70;
   display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }

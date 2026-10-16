@@ -1,11 +1,11 @@
-// Escritório Adaptus — versão hospedada (Railway).
+// Adaptus Agentes — versão hospedada (Railway).
 // Um portão HTTP na frente de um servidor Pixel Agents por sala (cada pessoa = uma sala).
 //
 //   GET  /                         página de entrada (pede a chave) ou o escritório da sala do cookie
 //   GET  /o/<chave>                entra na sala (grava cookie) e abre o escritório
 //   GET  /sair                     sai da sala
 //   POST /in                       eventos de hook (Authorization: Bearer <chave>)
-//   GET  /plugin/<chave>/escritorio-adaptus.plugin   plugin do Cowork já configurado
+//   GET  /plugin/<chave>/adaptus-agentes.plugin   plugin do Cowork já configurado
 //   GET  /instalar/<chave>/claude-code.sh|.ps1       instalação para o Claude Code (uma vez)
 //   GET  /instalar/<chave>/sessao.sh                 liga uma sessão do Cowork já aberta
 //   GET  /cliente/<arquivo>.js                       scripts do cliente (sem segredo)
@@ -257,9 +257,9 @@ function zip(files) {
 }
 
 function pluginZip(nome, chave, url) {
-  const manifest = { name: 'escritorio-adaptus', version: '1.0.0',
-    description: 'Mostra suas sessões do Claude no Escritório Adaptus.', author: { name: 'Adaptus Tecnologia' } };
-  const readme = `# Escritório Adaptus\n\nMostra cada sessão do Claude como um agente no seu escritório: ${url}/o/${chave}\n\nSó envia o nome da ferramenta e o arquivo/comando/busca (até 160 caracteres). Nunca o texto das mensagens nem o conteúdo dos arquivos.\n`;
+  const manifest = { name: 'adaptus-agentes', version: '1.0.0',
+    description: 'Mostra suas sessões do Claude no Adaptus Agentes.', author: { name: 'Adaptus Tecnologia' } };
+  const readme = `# Adaptus Agentes\n\nMostra cada sessão do Claude como um agente no seu escritório: ${url}/o/${chave}\n\nSó envia o nome da ferramenta e o arquivo/comando/busca (até 160 caracteres). Nunca o texto das mensagens nem o conteúdo dos arquivos.\n`;
   return zip([
     ['.claude-plugin/plugin.json', Buffer.from(JSON.stringify(manifest, null, 2))],
     ['hooks/hooks.json', Buffer.from(JSON.stringify(hooksJson('node "${CLAUDE_PLUGIN_ROOT}/scripts/emit.js"'), null, 2))],
@@ -273,10 +273,10 @@ function pluginZip(nome, chave, url) {
 
 function setupSh(chave, url) {
   return `#!/bin/bash
-# Escritório Adaptus — instala no Claude Code (macOS/Linux/Git Bash). Rode uma vez.
+# Adaptus Agentes — instala no Claude Code (macOS/Linux/Git Bash). Rode uma vez.
 set -e
 command -v node >/dev/null 2>&1 || { echo "Precisa do Node.js 18+ instalado."; exit 1; }
-D="$HOME/.escritorio-adaptus"; mkdir -p "$D/scripts"
+D="$HOME/.adaptus-agentes"; mkdir -p "$D/scripts"
 for f in emit.js sender.js tail-transcript.js instalar-hooks.js; do curl -fsSL "${url}/cliente/$f" -o "$D/scripts/$f"; done
 printf '%s' '${JSON.stringify({ url, chave })}' > "$D/config.json"
 node "$D/scripts/instalar-hooks.js"
@@ -285,10 +285,10 @@ echo "Pronto. Abra ${url}/o/${chave} e inicie uma sessão nova do Claude Code."
 }
 
 function setupPs1(chave, url) {
-  return `# Escritório Adaptus — instala no Claude Code (Windows). Rode uma vez no PowerShell.
+  return `# Adaptus Agentes — instala no Claude Code (Windows). Rode uma vez no PowerShell.
 $ErrorActionPreference = 'Stop'
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Write-Host 'Precisa do Node.js 18+ instalado.'; exit 1 }
-$D = Join-Path $env:USERPROFILE '.escritorio-adaptus'
+$D = Join-Path $env:USERPROFILE '.adaptus-agentes'
 New-Item -ItemType Directory -Force (Join-Path $D 'scripts') | Out-Null
 foreach ($f in 'emit.js','sender.js','tail-transcript.js','instalar-hooks.js') { Invoke-WebRequest -UseBasicParsing "${url}/cliente/$f" -OutFile (Join-Path $D "scripts\\$f") }
 [IO.File]::WriteAllText((Join-Path $D 'config.json'), '${JSON.stringify({ url, chave })}')
@@ -299,30 +299,30 @@ Write-Host "Pronto. Abra ${url}/o/${chave} e inicie uma sessão nova do Claude C
 
 function sessaoSh(chave, url) {
   return `#!/bin/bash
-# Escritório Adaptus — liga uma sessão do Cowork JÁ ABERTA (sem o plugin).
+# Adaptus Agentes — liga uma sessão do Cowork JÁ ABERTA (sem o plugin).
 set -e
-D=/tmp/escritorio-adaptus-plugin; mkdir -p "$D/scripts"
+D=/tmp/adaptus-agentes-plugin; mkdir -p "$D/scripts"
 for f in emit.js sender.js tail-transcript.js; do curl -fsSL "${url}/cliente/$f" -o "$D/scripts/$f"; done
 printf '%s' '${JSON.stringify({ url, chave })}' > "$D/config.json"
 T=$(ls -t ~/.claude/projects/*/*.jsonl 2>/dev/null | head -1)
 [ -n "$T" ] || { echo "transcript não encontrado"; exit 1; }
 if pgrep -f "tail-transcript.js $T" >/dev/null; then echo "já ligado: $(basename "$T" .jsonl)"; exit 0; fi
 setsid nohup node "$D/scripts/tail-transcript.js" "$T" >/dev/null 2>&1 < /dev/null &
-echo "ligado ao Escritório Adaptus: $(basename "$T" .jsonl)"
+echo "ligado ao Adaptus Agentes: $(basename "$T" .jsonl)"
 `;
 }
 
 // ── Páginas ─────────────────────────────────────────────────────────────
 function paginaEntrada(erro) {
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Escritório Adaptus</title><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<title>Adaptus Agentes</title><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
 <style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(1200px 600px at 70% -10%,#16204a 0%,#070a12 60%);color:#e6ebf5;font-family:Manrope,system-ui,sans-serif;padding:16px}
 .c{width:100%;max-width:380px;background:rgba(10,14,26,.8);border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
 .l{display:flex;gap:12px;align-items:center;margin-bottom:18px}.l b{font-size:20px;font-weight:800}p{color:#8b95ab;font-size:14px;margin:0 0 18px}
 input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(148,163,184,.25);background:#0b1020;color:#e6ebf5;font:600 14px Manrope,sans-serif;margin-bottom:12px}
 button{width:100%;padding:12px;border:0;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#8b5cf6);color:#06101f;font:800 15px Manrope,sans-serif;cursor:pointer}.e{color:#f59e0b;font-size:13px;margin-bottom:12px}</style></head>
 <body><form class="c" onsubmit="event.preventDefault();location.href='/o/'+encodeURIComponent(this.k.value.trim())">
-<div class="l"><svg viewBox="0 0 120 120" width="36" height="36"><rect width="120" height="120" rx="26" fill="#0F1628"/><path d="M60 22 98 102H80L60 60 40 102H22Z" fill="#EEF2F8"/><circle cx="60" cy="84" r="10" fill="#070A12"/><circle cx="60" cy="84" r="6" fill="#22D3EE"/></svg><b>Escritório Adaptus</b></div>
+<div class="l"><svg viewBox="0 0 120 120" width="36" height="36"><rect width="120" height="120" rx="26" fill="#0F1628"/><path d="M60 22 98 102H80L60 60 40 102H22Z" fill="#EEF2F8"/><circle cx="60" cy="84" r="10" fill="#070A12"/><circle cx="60" cy="84" r="6" fill="#22D3EE"/></svg><b>Adaptus Agentes</b></div>
 <p>Cole a chave da sua sala para ver seus agentes trabalhando.</p>${erro ? `<div class="e">${erro}</div>` : ''}
 <input name="k" placeholder="Chave da sala" autocomplete="off" required><button>Entrar</button></form></body></html>`;
 }
@@ -476,11 +476,11 @@ const server = http.createServer(async (req, res) => {
     }
     if (p === '/sair') return enviar(res, 302, '', 'text/plain', { location: '/', 'set-cookie': `${COOKIE}=; Path=/; Max-Age=0` });
 
-    if ((m = p.match(/^\/plugin\/([^/]+)\/escritorio-adaptus\.plugin$/))) {
+    if ((m = p.match(/^\/plugin\/([^/]+)\/adaptus-agentes\.plugin$/))) {
       const chave = decodeURIComponent(m[1]); const nome = porChave(chave);
       if (!nome) return enviar(res, 401, 'chave inválida');
       return enviar(res, 200, pluginZip(nome, chave, urlPublica(req)), 'application/zip',
-        { 'content-disposition': 'attachment; filename="escritorio-adaptus.plugin"' });
+        { 'content-disposition': 'attachment; filename="adaptus-agentes.plugin"' });
     }
     if ((m = p.match(/^\/instalar\/([^/]+)\/(claude-code\.sh|claude-code\.ps1|sessao\.sh)$/))) {
       const chave = decodeURIComponent(m[1]);
@@ -499,7 +499,7 @@ const server = http.createServer(async (req, res) => {
         if (!salas[nome]) { salas[nome] = { chave: crypto.randomBytes(24).toString('base64url'), criada: new Date().toISOString() }; salvarSalas(); }
         const u = urlPublica(req); const c = salas[nome].chave;
         return enviar(res, 200, JSON.stringify({ nome, chave: c, escritorio: `${u}/o/${c}`,
-          plugin_cowork: `${u}/plugin/${c}/escritorio-adaptus.plugin`,
+          plugin_cowork: `${u}/plugin/${c}/adaptus-agentes.plugin`,
           claude_code_mac_linux: `curl -fsSL ${u}/instalar/${c}/claude-code.sh | bash`,
           claude_code_windows: `irm ${u}/instalar/${c}/claude-code.ps1 | iex`,
           sessao_aberta: `curl -fsSL ${u}/instalar/${c}/sessao.sh | bash` }, null, 2), 'application/json');
@@ -549,6 +549,6 @@ server.on('upgrade', async (req, socket, head) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Escritório Adaptus na porta ${PORT}; ${Object.keys(salas).length} sala(s)`);
+  console.log(`Adaptus Agentes na porta ${PORT}; ${Object.keys(salas).length} sala(s)`);
   for (const nome of Object.keys(salas)) iniciarSala(nome);
 });

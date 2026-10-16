@@ -24,7 +24,7 @@ export function MigrationNotice({ onDismiss }: MigrationNoticeProps) {
           A boa notícia? Isso foi coisa de uma vez só, e abre caminho para novidades bem empolgantes
           por vir.
         </p>
-        <p className="text-xl m-0 mb-20">Fique de olho, e obrigado por usar o Pixel Agents!</p>
+        <p className="text-xl m-0 mb-20">Fique de olho, e obrigado por usar o Adaptus Agentes!</p>
         <Button variant="accent" size="xl" onClick={onDismiss}>
           Entendi
         </Button>

@@ -1,4 +1,4 @@
-// Escritório Adaptus — adiciona (ou atualiza) os hooks em ~/.claude/settings.json.
+// Adaptus Agentes — adiciona (ou atualiza) os hooks em ~/.claude/settings.json.
 // Mantém tudo o que já existe; um backup é salvo ao lado.
 'use strict';
 const fs = require('node:fs');
@@ -6,7 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const file = path.join(os.homedir(), '.claude', 'settings.json');
-const emit = path.join(os.homedir(), '.escritorio-adaptus', 'scripts', 'emit.js').replace(/\\/g, '/');
+const emit = path.join(os.homedir(), '.adaptus-agentes', 'scripts', 'emit.js').replace(/\\/g, '/');
 const cmd = `node "${emit}"`;
 const EVENTS = ['SessionStart', 'SessionEnd', 'Stop', 'PreToolUse', 'PostToolUse', 'PostToolUseFailure',
   'PermissionRequest', 'Notification', 'SubagentStart', 'SubagentStop'];
@@ -20,7 +20,7 @@ if (fs.existsSync(file)) {
 }
 s.hooks = s.hooks || {};
 for (const ev of EVENTS) {
-  const list = (s.hooks[ev] || []).map((m) => ({ ...m, hooks: (m.hooks || []).filter((h) => !String(h.command || '').includes('.escritorio-adaptus/scripts/emit.js')) }))
+  const list = (s.hooks[ev] || []).map((m) => ({ ...m, hooks: (m.hooks || []).filter((h) => !String(h.command || '').includes('.adaptus-agentes/scripts/emit.js')) }))
     .filter((m) => m.hooks.length);
   const entry = { hooks: [{ type: 'command', command: cmd, timeout: 5 }] };
   list.push(MATCH.has(ev) ? { matcher: '*', ...entry } : entry);
@@ -28,4 +28,4 @@ for (const ev of EVENTS) {
 }
 fs.mkdirSync(path.dirname(file), { recursive: true });
 fs.writeFileSync(file, JSON.stringify(s, null, 2));
-console.log('Hooks do Escritório Adaptus instalados em ' + file);
+console.log('Hooks do Adaptus Agentes instalados em ' + file);

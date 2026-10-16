@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-// Escritório Adaptus — lê a fila local e envia em lotes para a sala da pessoa.
+// Adaptus Agentes — lê a fila local e envia em lotes para a sala da pessoa.
 // Um por máquina/container (pid file). Sai sozinho após 15 min sem eventos.
 'use strict';
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const Q = process.env.ESCRITORIO_FILA || path.join(os.tmpdir(), 'escritorio-adaptus');
+const Q = process.env.ESCRITORIO_FILA || path.join(os.tmpdir(), 'adaptus-agentes');
 const QF = path.join(Q, 'fila.jsonl');
 const OFF = path.join(Q, 'posicao');
 const PID = path.join(Q, 'enviador.pid');
 const IDLE_MS = 15 * 60 * 1000;
 
 function loadCfg() {
-  const places = [path.join(__dirname, '..', 'config.json'), path.join(os.homedir(), '.escritorio-adaptus', 'config.json')];
+  const places = [path.join(__dirname, '..', 'config.json'), path.join(os.homedir(), '.adaptus-agentes', 'config.json')];
   for (const p of places) {
     try { const c = JSON.parse(fs.readFileSync(p, 'utf8').replace(/^﻿/, '')); if (c.url && c.chave) return c; } catch {}
   }

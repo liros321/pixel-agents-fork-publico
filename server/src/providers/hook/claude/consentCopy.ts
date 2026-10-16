@@ -21,7 +21,7 @@ const SETTINGS_FILE = '~/.claude/settings.json';
 
 /** WHY we ask + WHAT we write. */
 export const CONSENT_FACT_WHAT =
-  `Para dar vida aos seus agentes em tempo real, o Pixel Agents adiciona hooks para ` +
+  `Para dar vida aos seus agentes em tempo real, o Adaptus Agentes adiciona hooks para ` +
   `${CLAUDE_HOOK_EVENTS.length} eventos do Claude Code em ${SETTINGS_FILE}. ` +
   `Suas configurações atuais são mantidas, e um backup único é salvo como settings.json${SETTINGS_BACKUP_SUFFIX}.`;
 
@@ -35,7 +35,7 @@ export const CONSENT_FACT_WHAT =
  *  asked to break. */
 export const CONSENT_FACT_DATA =
   'O Claude Code vai enviar esses eventos - incluindo nomes e entradas das ferramentas - para um servidor ' +
-  'do Pixel Agents nesta máquina. Tudo fica local - o servidor escuta só em 127.0.0.1 - a menos que ' +
+  'do Adaptus Agentes nesta máquina. Tudo fica local - o servidor escuta só em 127.0.0.1 - a menos que ' +
   'você o inicie explicitamente com --host para expô-lo na sua rede.';
 
 /** HOW to undo it. */

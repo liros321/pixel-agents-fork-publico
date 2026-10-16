@@ -303,7 +303,7 @@ async function main(): Promise<void> {
     const displayHost =
       args.host === '0.0.0.0' || args.host === '::' || args.host === '' ? '127.0.0.1' : args.host;
     console.log(
-      `\n  Pixel Agents server running at http://${displayHost}:${config.port}/?token=${config.token}\n`,
+      `\n  Adaptus Agentes rodando em http://${displayHost}:${config.port}/?token=${config.token}\n`,
     );
 
     // ── Graceful shutdown ──

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Escritório Adaptus — hook do Claude (Cowork ou Claude Code) -> fila local.
+// Adaptus Agentes — hook do Claude (Cowork ou Claude Code) -> fila local.
 // Nunca bloqueia nem falha: grava 1 linha e, se o enviador não estiver rodando,
 // sobe um em segundo plano. Privacidade: só nome da ferramenta e
 // file_path/pattern/command/query/url/description (160 chars). Nunca prompt nem conteúdo.
@@ -9,7 +9,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 
-const Q = process.env.ESCRITORIO_FILA || path.join(os.tmpdir(), 'escritorio-adaptus');
+const Q = process.env.ESCRITORIO_FILA || path.join(os.tmpdir(), 'adaptus-agentes');
 const SAFE_INPUT = ['file_path', 'pattern', 'path', 'command', 'query', 'url', 'description', 'subagent_type'];
 const SAFE_KEYS = ['tool_name', 'notification_type', 'source', 'agent_id', 'agent_type', 'reason'];
 

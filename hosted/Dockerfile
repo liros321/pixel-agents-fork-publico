@@ -1,4 +1,4 @@
-# Escritório Adaptus (versão hospedada). Build a partir da raiz do repositório.
+# Adaptus Agentes (versão hospedada). Build a partir da raiz do repositório.
 FROM node:22-slim
 WORKDIR /app
 COPY . .

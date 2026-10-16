@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 
+import { POR_QUE_SOM } from '../hud/Hud.js';
 import { isSoundEnabled, setSoundEnabled } from '../notificationSound.js';
 import { isBrowserRuntime } from '../runtime.js';
 import { transport } from '../transport/index.js';
@@ -174,6 +175,7 @@ export function SettingsModal({
         checked={soundLocal}
         onChange={() => {
           const newVal = !isSoundEnabled();
+          if (!newVal && !window.confirm(`Desligar as notificações sonoras?\n\n${POR_QUE_SOM}`)) return;
           setSoundEnabled(newVal);
           setSoundLocal(newVal);
           transport.send({ type: 'setSoundEnabled', enabled: newVal });

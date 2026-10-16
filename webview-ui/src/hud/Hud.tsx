@@ -3,9 +3,17 @@
 // quando alguma sessão está esperando o usuário.
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { isSoundEnabled, playPermissionSound, setSoundEnabled, unlockAudio } from '../notificationSound.js';
 import type { OfficeState } from '../office/engine/officeState.js';
+import { transport } from '../transport/index.js';
 import type { ToolActivity } from '../office/types.js';
 import './hud.css';
+
+/** Texto mostrado quando alguém tenta desligar o som (também usado nas Configurações). */
+export const POR_QUE_SOM =
+  'O som é o que avisa quando uma sessão para esperando você — uma pergunta ou uma aprovação. ' +
+  'Sem ele, você só percebe se estiver olhando a tela, e a sessão fica parada até lá: ' +
+  'é aí que se perde mais tempo. Recomendamos deixar ligado.';
 
 type Estado = 'trabalhando' | 'esperando' | 'ocioso';
 interface Social {
@@ -83,7 +91,10 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
   const [aberto, setAberto] = useState(() => lerLS('hud.aberto', '1') === '1');
   const [filtro, setFiltro] = useState<Filtro>('todos');
   const [expandido, setExpandido] = useState<number | null>(null);
-  const [alertas, setAlertas] = useState(() => lerLS('hud.alertas', '0') === '1');
+  const [alertas, setAlertas] = useState(() => lerLS('hud.alertas', '1') === '1');
+  const [som, setSom] = useState(isSoundEnabled);
+  const [confirmarSom, setConfirmarSom] = useState(false);
+  const [audioTravado, setAudioTravado] = useState(true);
   const [toasts, setToasts] = useState<{ id: number; texto: string }[]>([]);
   const [social, setSocial] = useState<Social | null>(null);
   const [aba, setAba] = useState<'sessoes' | 'conectados'>('sessoes');
@@ -94,9 +105,31 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
   const anterior = useRef(new Map<number, { estado: Estado; atividade: string; desde: number; ultimo: number }>());
 
   useEffect(() => {
-    const iv = setInterval(() => setTick((n) => n + 1), 500);
+    const iv = setInterval(() => { setTick((n) => n + 1); setSom(isSoundEnabled()); }, 500);
     return () => clearInterval(iv);
   }, []);
+
+  // Navegadores só liberam áudio depois de um clique: libera no primeiro gesto e, de quebra,
+  // pede permissão para as notificações da área de trabalho (ligadas por padrão).
+  useEffect(() => {
+    const liberar = () => {
+      unlockAudio();
+      setAudioTravado(false);
+      if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+        void Notification.requestPermission().catch(() => undefined);
+      }
+    };
+    window.addEventListener('pointerdown', liberar, { once: true });
+    window.addEventListener('keydown', liberar, { once: true });
+    return () => { window.removeEventListener('pointerdown', liberar); window.removeEventListener('keydown', liberar); };
+  }, []);
+
+  const mudarSom = (ligado: boolean) => {
+    setSoundEnabled(ligado);
+    transport.send({ type: 'setSoundEnabled', enabled: ligado });
+    setSom(ligado);
+    if (ligado) { unlockAudio(); void playPermissionSound(); }
+  };
 
   // Escritórios conectados: só existe na versão hospedada (a local não tem /api/social).
   useEffect(() => {
@@ -120,7 +153,7 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
         setToasts((t) => [...t, { id: tid, texto: `${n} quer conectar os escritórios` }]);
         setTimeout(() => setToasts((t) => t.filter((x) => x.id !== tid)), 9000);
         if (alertas && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-          try { new Notification('Escritório Adaptus', { body: `${n} quer conectar os escritórios` }); } catch { /* ignore */ }
+          try { new Notification('Adaptus Agentes', { body: `${n} quer conectar os escritórios` }); } catch { /* ignore */ }
         }
       }
     }
@@ -189,7 +222,7 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
       setToasts((t) => [...t, { id: tid, texto: `${nome} está esperando você` }]);
       setTimeout(() => setToasts((t) => t.filter((x) => x.id !== tid)), 7000);
       if (alertas && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        try { new Notification('Escritório Adaptus', { body: `${nome} está esperando você` }); } catch { /* ignore */ }
+        try { new Notification('Adaptus Agentes', { body: `${nome} está esperando você` }); } catch { /* ignore */ }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -203,7 +236,7 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
   }, [assinatura]);
 
   useEffect(() => {
-    const base = social?.visitando ? `Escritório de ${social.visitando}` : 'Escritório Adaptus';
+    const base = social?.visitando ? `Escritório de ${social.visitando}` : 'Adaptus Agentes';
     const n = cont.esperando + (social && !social.visitando ? social.recebidos.length : 0);
     document.title = n ? `(${n}) ${base}` : base;
   }, [cont.esperando, social]);
@@ -226,11 +259,10 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
   };
 
   const alternarPainel = () => { setAberto((v) => { gravarLS('hud.aberto', v ? '0' : '1'); return !v; }); };
-  const alternarAlertas = async () => {
-    if (!alertas && typeof Notification !== 'undefined' && Notification.permission !== 'granted') {
-      try { await Notification.requestPermission(); } catch { /* ignore */ }
-    }
-    setAlertas((v) => { gravarLS('hud.alertas', v ? '0' : '1'); return !v; });
+  const clicarSino = () => {
+    if (som) { setConfirmarSom(true); return; }
+    mudarSom(true);
+    if (!alertas) { setAlertas(true); gravarLS('hud.alertas', '1'); }
   };
 
   return (
@@ -239,8 +271,8 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
         <div className="hud-brand">
           <span className="hud-logo"><svg viewBox="0 0 120 120" width="30" height="30" aria-hidden="true"><rect width="120" height="120" rx="26" fill="#0F1628"/><path d="M60 22 98 102H80L60 60 40 102H22Z" fill="#EEF2F8"/><circle cx="60" cy="84" r="10" fill="#070A12"/><circle cx="60" cy="84" r="6" fill="#22D3EE"/></svg></span>
           <div>
-            <strong>{social?.visitando ? `Escritório de ${social.visitando}` : 'Escritório Adaptus'}</strong>
-            <small>{lista.length} {lista.length === 1 ? 'sessão' : 'sessões'}{social?.visitando ? ' · só visualização' : ' conectadas'}</small>
+            <strong>{social?.visitando ? `Escritório de ${social.visitando}` : 'Adaptus Agentes'}</strong>
+            <small>{lista.length} {lista.length === 1 ? 'sessão' : 'sessões'}{social?.visitando ? ' · só visualização' : lista.length === 1 ? ' conectada' : ' conectadas'}</small>
           </div>
         </div>
         <div className="hud-chips">
@@ -270,8 +302,8 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
               👥{social.recebidos.length > 0 && !social.visitando && <span className="hud-badge">{social.recebidos.length}</span>}
             </button>
           )}
-          <button className={`hud-icon ${alertas ? 'is-on' : ''}`} onClick={alternarAlertas} title={alertas ? 'Alertas na área de trabalho: ligados' : 'Ligar alertas na área de trabalho'}>
-            {alertas ? '🔔' : '🔕'}
+          <button className={`hud-icon ${som ? 'is-on' : 'hud-icon--off'}`} onClick={clicarSino} title={som ? 'Som dos alertas: ligado' : 'Som dos alertas: desligado — clique para ligar'}>
+            {som ? '🔔' : '🔕'}
           </button>
           <button className={`hud-icon ${aberto ? 'is-on' : ''}`} onClick={alternarPainel} title={aberto ? 'Esconder painel' : 'Mostrar painel'}>☰</button>
         </div>
@@ -370,6 +402,28 @@ export function Hud({ officeState, agents, agentTools }: HudProps) {
           })}
           <p className="hud-hint">Clique numa sessão para seguir o boneco. Clique de novo para soltar.</p>
         </aside>
+      )}
+
+      {!som && (
+        <button className="hud-nudge" onClick={() => mudarSom(true)}>
+          🔕 O som dos alertas está desligado — você pode não perceber quando uma sessão precisar de você. <b>Ligar</b>
+        </button>
+      )}
+      {som && audioTravado && (
+        <div className="hud-nudge hud-nudge--soft">🔔 Clique em qualquer lugar da tela para liberar o som dos alertas.</div>
+      )}
+
+      {confirmarSom && (
+        <div className="hud-modal-bg" onClick={() => setConfirmarSom(false)}>
+          <div className="hud-modal" onClick={(e) => e.stopPropagation()}>
+            <strong>Desligar o som dos alertas?</strong>
+            <p>{POR_QUE_SOM}</p>
+            <div className="hud-modal-btns">
+              <button className="hud-btn hud-btn--ok" onClick={() => setConfirmarSom(false)}>Manter ligado</button>
+              <button className="hud-btn" onClick={() => { mudarSom(false); setConfirmarSom(false); }}>Desligar mesmo assim</button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="hud-toasts">

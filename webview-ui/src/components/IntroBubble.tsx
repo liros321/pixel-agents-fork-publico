@@ -217,7 +217,7 @@ export function IntroBubble({
   };
 
   const titles = [
-    'Bem-vindo ao Pixel Agents!',
+    'Bem-vindo ao Adaptus Agentes!',
     'Movido a Claude Code',
     headline,
     installFailed ? 'Não deu para instalar os hooks' : 'Tudo pronto!',

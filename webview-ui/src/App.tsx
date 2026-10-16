@@ -490,7 +490,7 @@ function App() {
         zIndex={52}
       >
         <div className="text-base text-text px-10" style={{ lineHeight: 1.4 }}>
-          <p className="mb-8">Seu escritório do Pixel Agents agora reage em tempo real:</p>
+          <p className="mb-8">Seu escritório do Adaptus Agentes agora reage em tempo real:</p>
           <ul className="mb-8 pl-18 list-disc m-0">
             <li className="text-sm mb-2">Pedidos de permissão aparecem na hora</li>
             <li className="text-sm mb-2">Fim de turno detectado no instante em que acontece</li>
@@ -523,12 +523,15 @@ function App() {
         workspaceFolders={workspaceFolders}
       />
 
+      {/* Adaptus Agentes: sem o aviso de versões do projeto original. */}
+      {false && (
       <VersionIndicator
         currentVersion={extensionVersion}
         lastSeenVersion={lastSeenVersion}
         onDismiss={handleWhatsNewDismiss}
         onOpenChangelog={handleOpenChangelog}
       />
+      )}
 
       <ConnectionIndicator />
 

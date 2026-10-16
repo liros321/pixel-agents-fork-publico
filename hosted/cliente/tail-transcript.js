@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Escritório Adaptus — para uma sessão já aberta (sem hooks): lê o transcript e gera
+// Adaptus Agentes — para uma sessão já aberta (sem hooks): lê o transcript e gera
 // os mesmos eventos na fila. Uso: node tail-transcript.js <arquivo.jsonl>
 'use strict';
 const fs = require('node:fs');
