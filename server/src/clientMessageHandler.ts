@@ -230,6 +230,8 @@ export function handleClientMessage(
       break;
 
     case 'addExternalAssetDirectory': {
+      // Versão hospedada (Escritório Adaptus): visitantes não escolhem pastas do servidor.
+      if (process.env.PIXEL_AGENTS_HOSTED) break;
       const newPath = msg.path as string | undefined;
       if (!newPath) break;
       const cfg = readConfig();
@@ -243,6 +245,8 @@ export function handleClientMessage(
     }
 
     case 'removeExternalAssetDirectory': {
+      // Versão hospedada (Escritório Adaptus): visitantes não escolhem pastas do servidor.
+      if (process.env.PIXEL_AGENTS_HOSTED) break;
       const removePath = msg.path as string | undefined;
       if (!removePath) break;
       const cfg = readConfig();

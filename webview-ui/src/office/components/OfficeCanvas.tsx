@@ -23,7 +23,7 @@ import type {
 } from '../engine/renderer.js';
 import { renderFrame } from '../engine/renderer.js';
 import { getCatalogEntry, isRotatable } from '../layout/furnitureCatalog.js';
-import { EditTool, TILE_SIZE } from '../types.js';
+import { EditTool, TILE_SIZE, TileType } from '../types.js';
 import { computeNormalModeCursor } from './officeCanvasCursor.js';
 
 interface OfficeCanvasProps {
@@ -70,6 +70,9 @@ export function OfficeCanvas({
   const offsetRef = useRef({ x: 0, y: 0 });
   // Middle-mouse pan state (imperative, no re-renders)
   const isPanningRef = useRef(false);
+  // Escritório Adaptus: quando ninguém está sendo seguido, o mapa volta ao centro
+  // (da área visível, descontando o painel lateral) alguns segundos após um arraste.
+  const lastManualPanRef = useRef(0);
   const panStartRef = useRef({ mouseX: 0, mouseY: 0, panX: 0, panY: 0 });
   // Delete/rotate button bounds (updated each frame by renderer)
   const deleteButtonBoundsRef = useRef<DeleteButtonBounds | null>(null);
@@ -261,6 +264,29 @@ export function OfficeCanvas({
               y: panRef.current.y + dy * CAMERA_FOLLOW_LERP,
             };
           }
+        } else if (!isEditMode && !isPanningRef.current && Date.now() - lastManualPanRef.current > 4000) {
+          const dpr = window.devicePixelRatio || 1;
+          const hud = window as unknown as { __hudCenterOffsetX?: number; __hudCenterOffsetY?: number };
+          // Centro da parte desenhada do mapa (ignora linhas/colunas vazias da grade).
+          const lay = officeState.getLayout();
+          let minC = lay.cols, maxC = -1, minR = lay.rows, maxR = -1;
+          for (let r = 0; r < lay.rows; r++) for (let c = 0; c < lay.cols; c++) {
+            if (lay.tiles[r * lay.cols + c] !== TileType.VOID) {
+              if (c < minC) minC = c; if (c > maxC) maxC = c; if (r < minR) minR = r; if (r > maxR) maxR = r;
+            }
+          }
+          const mW = lay.cols * TILE_SIZE * zoom, mH = lay.rows * TILE_SIZE * zoom;
+          const cx = maxC >= 0 ? ((minC + maxC + 1) / 2) * TILE_SIZE : (lay.cols * TILE_SIZE) / 2;
+          const cy = maxR >= 0 ? ((Math.max(0, minR - 1) + maxR + 1) / 2) * TILE_SIZE : (lay.rows * TILE_SIZE) / 2;
+          const offX = mW / 2 - cx * zoom + (hud.__hudCenterOffsetX ?? 0) * dpr;
+          const offY = mH / 2 - cy * zoom + (hud.__hudCenterOffsetY ?? 0) * dpr;
+          const dx = offX - panRef.current.x;
+          const dy = offY - panRef.current.y;
+          if (Math.abs(dx) < CAMERA_FOLLOW_SNAP_THRESHOLD && Math.abs(dy) < CAMERA_FOLLOW_SNAP_THRESHOLD) {
+            panRef.current = { x: offX, y: offY };
+          } else {
+            panRef.current = { x: panRef.current.x + dx * CAMERA_FOLLOW_LERP, y: panRef.current.y + dy * CAMERA_FOLLOW_LERP };
+          }
         }
 
         // Build selection render state
@@ -389,6 +415,7 @@ export function OfficeCanvas({
         const dx = (e.clientX - panStartRef.current.mouseX) * dpr;
         const dy = (e.clientY - panStartRef.current.mouseY) * dpr;
         panRef.current = clampPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
+        lastManualPanRef.current = Date.now();
         return;
       }
 
@@ -853,6 +880,7 @@ export function OfficeCanvas({
           panRef.current.x - e.deltaX * dpr,
           panRef.current.y - e.deltaY * dpr,
         );
+        lastManualPanRef.current = Date.now();
       }
     },
     [zoom, onZoomChange, officeState, panRef, clampPan],

@@ -112,6 +112,30 @@
 .hud-dot--pulse { animation: hud-pulse 1.4s ease-in-out infinite; }
 .hud-dot--blink { animation: hud-blink 1s steps(2, start) infinite; }
 
+/* Escritórios conectados */
+.hud-visit { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  background: rgba(139, 92, 246, .16); border: 1px solid rgba(139, 92, 246, .6); color: var(--hud-text); font: 600 13px 'Manrope', sans-serif; }
+.hud-visit b { color: #c4b5fd; }
+.hud-icon { position: relative; }
+.hud-badge { position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px;
+  background: var(--hud-wait); color: #1a1100; font: 800 10px/17px 'Manrope', sans-serif; }
+.hud-me { font-size: 13px; padding: 8px 10px; border-radius: 10px; background: rgba(34, 211, 238, .07); border: 1px solid rgba(34, 211, 238, .25); }
+.hud-me b { color: var(--hud-accent); }
+.hud-me small { display: block; color: var(--hud-muted); font-size: 11px; margin-top: 2px; }
+.hud-add { display: flex; gap: 6px; }
+.hud-add input { flex: 1; min-width: 0; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--hud-line); background: #0b1020; color: var(--hud-text); font: 600 13px 'Manrope', sans-serif; }
+.hud-add button, .hud-btn { padding: 7px 11px; border-radius: 9px; border: 1px solid var(--hud-line); background: rgba(148, 163, 184, .1); color: var(--hud-text); font: 700 12px 'Manrope', sans-serif; cursor: pointer; }
+.hud-add button, .hud-btn--ok { background: linear-gradient(135deg, var(--hud-accent), var(--hud-violet)); color: #06101f; border: 0; }
+.hud-sub { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--hud-muted); padding: 6px 4px 0; }
+.hud-friend { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 11px;
+  background: rgba(148, 163, 184, .06); border: 1px solid var(--hud-line); }
+.hud-friend > div:first-child { display: flex; flex-direction: column; min-width: 0; }
+.hud-friend strong { font-size: 14px; } .hud-friend span { font-size: 12px; color: var(--hud-muted); }
+.hud-friend--pedido { border-color: rgba(245, 158, 11, .55); background: rgba(245, 158, 11, .08); }
+.hud-friend--espera { opacity: .7; }
+.hud-friend-btns { display: flex; gap: 5px; flex: none; }
+.hud-err { color: var(--hud-wait); font-size: 12px; margin: 0; padding: 0 4px; }
+
 /* Alertas */
 .hud-toasts { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 70;
   display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
